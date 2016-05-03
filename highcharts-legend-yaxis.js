@@ -41,7 +41,7 @@
         rect.x = yAxis.left + yAxis.offset;
         rect.x = (opposite) ? rect.x + yAxis.width : rect.x - rect.width;
 
-        rect.y = yAxis.top + baselineOffset + 10;
+        rect.y = yAxis.top + yAxis.height;
 
         yAxis.yaxisHeaderText = renderer.text(headerText, rect.x, rect.y)
           .attr({
