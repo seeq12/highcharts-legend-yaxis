@@ -8,45 +8,61 @@
  * @version 0.2.2
  */
 (function (H) {
-  'use strict'
+  'use strict';
 
   /**
-   * @function positionRects
+   * @function positionElements
    *
    * @param {Object} obj - Represents the chart container.
    * @param {Object} yAxisGroup - Container of the rects per y-Axis.
    */
-  var positionRects = function (obj, yAxisGroup) {
-    var chart = obj
-    var renderer = chart.renderer
-    var yAxis = chart.yAxis
-    var baselineOffset = 3 // Vertical offset from the baseline
-    var itemMarginTop = 5
+  var positionElements = function (obj, yAxisGroup) {
+    var chart = obj;
+    var renderer = chart.renderer;
+    var yAxis = chart.yAxis;
+    var baselineOffset = 3; // Vertical offset from the baseline
+    var itemMarginTop = 5;
     var rect = {
       width: 15,
       height: 3,
       radius: 0
-    }
+    };
 
-    yAxisGroup.add()
+    yAxisGroup.add();
 
     H.each(yAxis, function (yAxis) {
-      var opposite = (yAxis.opposite === undefined) ? false : yAxis.opposite
-      var showRects = (yAxis.options.showRects === undefined) ? true : yAxis.options.showRects
+      var opposite = (yAxis.opposite === undefined) ? false : yAxis.opposite;
+      var showRects = (yAxis.options.showRects === undefined) ? true : yAxis.options.showRects;
+      var headerText = yAxis.options.headerText;
+      var skipped = 0;
+      var i;
+
+      if (headerText && yAxis.visible) {
+        rect.x = yAxis.left + yAxis.offset;
+        rect.x = (opposite) ? rect.x + yAxis.width : rect.x - rect.width;
+
+        rect.y = yAxis.top + baselineOffset + 10;
+
+        yAxis.yaxisHeaderText = renderer.text(headerText, rect.x, rect.y)
+          .attr({
+            zIndex: 8
+          })
+          .add(yAxisGroup);
+      }
 
       if (showRects) {
-        var skipped = 0
-        for (var i = 0; i < yAxis.series.length; i++) {
+        skipped = 0;
+        for (i = 0; i < yAxis.series.length; i++) {
           if (!(yAxis.series[i].options.showRects === undefined || yAxis.series[i].options.showRects)) {
-            skipped++
-            continue
+            skipped++;
+            continue;
           }
 
           if (yAxis.series[i].visible) {
-            rect.x = yAxis.left + yAxis.offset + (yAxis.options.showRectsX || 0)
-            rect.x = (opposite) ? rect.x + yAxis.width : rect.x - rect.width
+            rect.x = yAxis.left + yAxis.offset + (yAxis.options.showRectsX || 0);
+            rect.x = (opposite) ? rect.x + yAxis.width : rect.x - rect.width;
 
-            rect.y = yAxis.top + yAxis.height + baselineOffset + itemMarginTop * (i - skipped + 1) + (yAxis.options.showRectsY || 0)
+            rect.y = yAxis.top + yAxis.height + baselineOffset + itemMarginTop * (i - skipped + 1) + (yAxis.options.showRectsY || 0);
 
             yAxis.series[i].yaxisRect = renderer.rect(rect.x,
                 rect.y,
@@ -57,48 +73,55 @@
                 fill: yAxis.series[i].color,
                 zIndex: 8
               })
-              .add(yAxisGroup)
+              .add(yAxisGroup);
           }
         }
       }
-    })
-  }
+    });
+  };
 
   H.wrap(H.Chart.prototype, 'init', function (proceed) {
-    // Run the original proceed method
-    proceed.apply(this, Array.prototype.slice.call(arguments, 1))
+    // jscs:disable safeContextKeyword
+    var chart = this;
+    // jscs:enable safeContextKeyword
+    var group, series, events;
 
-    var chart = this
-    var group = chart.renderer.g('yaxis-group')
-    var series = chart.series
-    var events = {
+    // Run the original proceed method
+    proceed.apply(chart, Array.prototype.slice.call(arguments, 1));
+
+    group = chart.renderer.g('yaxis-group');
+    series = chart.series;
+    events = {
       'endResize': chart,
       'hide': series,
       'show': series,
       'redraw': chart
+    };
+
+    function redraw() {
+      removeEvents();
+      group.destroy(); // Destroy the container and free up memory
+      chart.yaxisGroup = group = chart.renderer.g('yaxis-group');
+      positionElements(chart, group);
+      addEvents();
     }
-    var redraw = function () {
-      removeEvents()
-      group.destroy() // Destroy the container and free up memory
-      chart.yaxisGroup = group = chart.renderer.g('yaxis-group')
-      positionRects(chart, group)
-      addEvents()
-    }
-    var addEvents = function () {
+
+    function addEvents() {
       for (var ev in events) {
         if (events.hasOwnProperty(ev)) {
-          H.addEvent(events[ev], ev, redraw)
-        }
-      }
-    }
-    var removeEvents = function () {
-      for (var ev in events) {
-        if (events.hasOwnProperty(ev)) {
-          H.removeEvent(events[ev], ev, redraw)
+          H.addEvent(events[ev], ev, redraw);
         }
       }
     }
 
-    redraw()
-  })
-}(Highcharts))
+    function removeEvents() {
+      for (var ev in events) {
+        if (events.hasOwnProperty(ev)) {
+          H.removeEvent(events[ev], ev, redraw);
+        }
+      }
+    }
+
+    redraw();
+  });
+}(Highcharts));
