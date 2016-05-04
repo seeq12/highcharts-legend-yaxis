@@ -32,49 +32,41 @@
 
     H.each(yAxis, function (yAxis) {
       var opposite = (yAxis.opposite === undefined) ? false : yAxis.opposite;
-      var showRects = (yAxis.options.showRects === undefined) ? true : yAxis.options.showRects;
+      var showRects = (yAxis.options.showRects === undefined) ? [] : yAxis.options.showRects;
       var headerText = yAxis.options.headerText;
       var skipped = 0;
       var i;
 
       if (headerText && yAxis.visible) {
-        rect.x = yAxis.left + yAxis.offset;
+        rect.x = yAxis.left + yAxis.offset + (yAxis.options.headerTextX || 0);
         rect.x = (opposite) ? rect.x + yAxis.width : rect.x - rect.width;
 
-        rect.y = yAxis.top + yAxis.height;
+        rect.y = yAxis.top + yAxis.height + (yAxis.options.headerTextY || 0);
 
-        yAxis.yaxisHeaderText = renderer.text(headerText, rect.x, rect.y)
+        yAxis.yaxisHeaderText = renderer.label(headerText, rect.x, rect.y)
           .attr({
             zIndex: 8
           })
           .add(yAxisGroup);
       }
 
-      if (showRects) {
-        skipped = 0;
-        for (i = 0; i < yAxis.series.length; i++) {
-          if (!(yAxis.series[i].options.showRects === undefined || yAxis.series[i].options.showRects)) {
-            skipped++;
-            continue;
-          }
+      if (showRects && yAxis.visible) {
+        for (i = 0; i < showRects.length; i++) {
+          rect.x = yAxis.left + yAxis.offset + (yAxis.options.showRectsX || 0);
+          rect.x = (opposite) ? rect.x + yAxis.width : rect.x - rect.width;
 
-          if (yAxis.series[i].visible) {
-            rect.x = yAxis.left + yAxis.offset + (yAxis.options.showRectsX || 0);
-            rect.x = (opposite) ? rect.x + yAxis.width : rect.x - rect.width;
+          rect.y = yAxis.top + yAxis.height + baselineOffset + itemMarginTop * (i - skipped + 1) + (yAxis.options.showRectsY || 0);
 
-            rect.y = yAxis.top + yAxis.height + baselineOffset + itemMarginTop * (i - skipped + 1) + (yAxis.options.showRectsY || 0);
-
-            yAxis.series[i].yaxisRect = renderer.rect(rect.x,
-                rect.y,
-                rect.width,
-                rect.height,
-                rect.radius)
-              .attr({
-                fill: yAxis.series[i].color,
-                zIndex: 8
-              })
-              .add(yAxisGroup);
-          }
+          renderer.rect(rect.x,
+              rect.y,
+              rect.width,
+              rect.height,
+              rect.radius)
+            .attr({
+              fill: showRects[i],
+              zIndex: 8
+            })
+            .add(yAxisGroup);
         }
       }
     });
