@@ -33,9 +33,10 @@
     H.each(yAxis, function (yAxis) {
       var opposite = (yAxis.opposite === undefined) ? false : yAxis.opposite;
       var showRects = (yAxis.options.showRects === undefined) ? [] : yAxis.options.showRects;
+      var showRectsStackUp = (yAxis.options.showRectsStackUp === undefined) ? false : yAxis.options.showRectsStackUp;
       var headerText = yAxis.options.headerText;
+      var i, rectYOffset;
       var skipped = 0;
-      var i;
 
       if (headerText && yAxis.visible) {
         rect.x = yAxis.left + yAxis.offset + (yAxis.options.headerTextX || 0);
@@ -55,7 +56,11 @@
           rect.x = yAxis.left + yAxis.offset + (yAxis.options.showRectsX || 0);
           rect.x = (opposite) ? rect.x + yAxis.width : rect.x - rect.width;
 
-          rect.y = yAxis.top + yAxis.height + baselineOffset + itemMarginTop * (i - skipped + 1) + (yAxis.options.showRectsY || 0);
+          rectYOffset = itemMarginTop * (i - skipped + 1);
+          if (showRectsStackUp) {
+            rectYOffset *= -1;
+          }
+          rect.y = yAxis.top + yAxis.height + baselineOffset + rectYOffset + (yAxis.options.showRectsY || 0);
 
           renderer.rect(rect.x,
               rect.y,
