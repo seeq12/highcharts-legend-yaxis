@@ -35,6 +35,7 @@
       var showRects = (yAxis.options.showRects === undefined) ? [] : yAxis.options.showRects;
       var showRectsStackUp = (yAxis.options.showRectsStackUp === undefined) ? false : yAxis.options.showRectsStackUp;
       var headerText = yAxis.options.headerText;
+      var headerTextColor = (yAxis.options.headerTextColor === undefined) ? 'black' : yAxis.options.headerTextColor;
       var i, rectYOffset;
       var skipped = 0;
 
@@ -45,6 +46,9 @@
         rect.y = yAxis.top + yAxis.height + (yAxis.options.headerTextY || 0);
 
         yAxis.yaxisHeaderText = renderer.label(headerText, rect.x, rect.y)
+          .css({
+            color: headerTextColor
+          })
           .attr({
             zIndex: 8
           })
