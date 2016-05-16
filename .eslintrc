@@ -1,9 +1,15 @@
 {
-  "extends": "standard",
+  "extends": "eslint-config-airbnb-es5",
   "env": {
     "browser": true
   },
   "globals": {
     "Highcharts": true
+  },
+  "rules": {
+    "no-undefined": 0,
+    "func-names": 0,
+    "space-before-function-paren": 0,
+    "one-var": 0
   }
 }

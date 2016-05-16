@@ -1,11 +1,7 @@
 /**
- * @file Highcharts plugin that shows the legend boxes (rects) bellow the yAxis area.
- * Usage: Set showRects: false in the yAxis options to disable.
- * Default: true
+ * This Highcharts plugin adds some y-axis legend/drawing capabilities.
  *
- * @author Milton Mazzarri <milmazz@gmail.com>
- * @copyright Milton Mazzarri 2014
- * @version 0.2.2
+ * Modified from a plugin by Milton Mazzarri <milmazz@gmail.com>, 2014.
  */
 (function (H) {
   'use strict';
@@ -15,11 +11,12 @@
    *
    * @param {Object} obj - Represents the chart container.
    * @param {Object} yAxisGroup - Container of the rects per y-Axis.
+   * @returns {undefined}
    */
   var positionElements = function (obj, yAxisGroup) {
     var chart = obj;
     var renderer = chart.renderer;
-    var yAxis = chart.yAxis;
+    var yAxes = chart.yAxis;
     var baselineOffset = 3; // Vertical offset from the baseline
     var itemMarginTop = 5;
     var rect = {
@@ -30,7 +27,7 @@
 
     yAxisGroup.add();
 
-    H.each(yAxis, function (yAxis) {
+    H.each(yAxes, function (yAxis) {
       var opposite = (yAxis.opposite === undefined) ? false : yAxis.opposite;
       var showRects = (yAxis.options.showRects === undefined) ? [] : yAxis.options.showRects;
       var showRectsStackUp = (yAxis.options.showRectsStackUp === undefined) ? false : yAxis.options.showRectsStackUp;
